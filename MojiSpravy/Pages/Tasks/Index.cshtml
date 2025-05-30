@@ -1,0 +1,97 @@
+@page
+@model MojiSpravy.Pages.Tasks.IndexModel
+@using MojiSpravy.Models
+@{
+    ViewData["Title"] = "Мої завдання";
+}
+
+<div class="container">
+    <h1>Мої завдання</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <select asp-for="SelectedCategoryId" asp-items="Model.Categories" class="form-select">
+                        <option value="">Всі категорії</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select asp-for="SelectedStatus" class="form-select">
+                        <option value="">Всі статуси</option>
+                        <option value="NotStarted">Не розпочато</option>
+                        <option value="InProgress">В процесі</option>
+                        <option value="Completed">Виконано</option>
+                        <option value="Cancelled">Скасовано</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">Фільтрувати</button>
+                    <a asp-page="./Index" class="btn btn-secondary">Скинути</a>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-page="Create" class="btn btn-success">Створити нове завдання</a>
+        </div>
+    </div>
+
+    @if (!Model.Tasks.Any())
+    {
+        <div class="alert alert-info">
+            У вас ще немає завдань. Створіть перше завдання!
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var task in Model.Tasks)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 @(task.Status == MojiSpravy.Models.TaskStatus.Completed ? "bg-light" : "")">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title">@task.Title</h5>
+                                <span class="badge @GetStatusBadgeClass(task.Status)">@task.Status.ToUkrainian()</span>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(task.Description))
+                            {
+                                <p class="card-text">@task.Description</p>
+                            }
+
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> Термін: @task.DueDate.ToString("d MMMM yyyy")
+                                </small>
+                            </div>
+
+                            @if (task.Category != null)
+                            {
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary">@task.Category.Name</span>
+                                </div>
+                            }
+
+                            <div class="btn-group">
+                                <a asp-page="./Edit" asp-route-id="@task.Id" class="btn btn-warning">Редагувати</a>
+                                <a asp-page="./Delete" asp-route-id="@task.Id" class="btn btn-danger">Видалити</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(MojiSpravy.Models.TaskStatus status) => status switch
+    {
+        MojiSpravy.Models.TaskStatus.NotStarted => "bg-secondary",
+        MojiSpravy.Models.TaskStatus.InProgress => "bg-primary",
+        MojiSpravy.Models.TaskStatus.Completed => "bg-success",
+        MojiSpravy.Models.TaskStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+} 

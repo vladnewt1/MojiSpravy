@@ -1,0 +1,30 @@
+@page "{id:int}"
+@model MojiSpravy.Pages.Categories.DeleteModel
+@{
+    ViewData["Title"] = "Видалити категорію";
+}
+
+<div class="container">
+    <h1>Видалити категорію</h1>
+
+    <div class="alert alert-danger">
+        <h4>Ви впевнені, що хочете видалити цю категорію?</h4>
+        <p>Ця дія є незворотною. Всі завдання в цій категорії залишаться, але будуть без категорії.</p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Category.Name</h5>
+            @if (!string.IsNullOrEmpty(Model.Category.Description))
+            {
+                <p class="card-text">@Model.Category.Description</p>
+            }
+        </div>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="Category.Id" />
+        <button type="submit" class="btn btn-danger">Видалити</button>
+        <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+    </form>
+</div> 

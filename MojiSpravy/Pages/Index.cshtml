@@ -1,0 +1,142 @@
+﻿@page
+@model IndexModel
+@using MojiSpravy.Models
+@{
+    ViewData["Title"] = "Головна";
+}
+
+<div class="container">
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Всього завдань</h5>
+                        <p class="card-text display-4">@Model.TotalTasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Виконано</h5>
+                        <p class="card-text display-4">@Model.CompletedTasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">В процесі</h5>
+                        <p class="card-text display-4">@Model.PendingTasks</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Протерміновано</h5>
+                        <p class="card-text display-4">@Model.OverdueTasks</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Останні завдання</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.RecentTasks.Any())
+                        {
+                            <div class="list-group">
+                                @foreach (var task in Model.RecentTasks)
+                                {
+                                    <a href="/Tasks/Edit/@task.Id" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@task.Title</h6>
+                                            <small class="text-muted">@task.CreatedAt.ToString("d MMM")</small>
+                                        </div>
+                                        <p class="mb-1">@(task.Description?.Length > 100 ? task.Description[..100] + "..." : task.Description)</p>
+                                        <small>
+                                            <span class="badge @GetStatusBadgeClass(task.Status)">@task.Status.ToUkrainian()</span>
+                                            @if (task.Category != null)
+                                            {
+                                                <span class="badge bg-secondary">@task.Category.Name</span>
+                                            }
+                                        </small>
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Немає активних завдань</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Майбутні завдання</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.UpcomingTasks.Any())
+                        {
+                            <div class="list-group">
+                                @foreach (var task in Model.UpcomingTasks)
+                                {
+                                    <a href="/Tasks/Edit/@task.Id" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@task.Title</h6>
+                                            <small class="text-muted">@task.DueDate.ToString("d MMM")</small>
+                                        </div>
+                                        <p class="mb-1">@(task.Description?.Length > 100 ? task.Description[..100] + "..." : task.Description)</p>
+                                        <small>
+                                            <span class="badge @GetStatusBadgeClass(task.Status)">@task.Status.ToUkrainian()</span>
+                                            @if (task.Category != null)
+                                            {
+                                                <span class="badge bg-secondary">@task.Category.Name</span>
+                                            }
+                                        </small>
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted">Немає майбутніх завдань</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h1 class="display-4">Ласкаво просимо до МоїСправи!</h1>
+            <p class="lead">Ваш персональний менеджер завдань</p>
+            <hr class="my-4">
+            <p>Увійдіть або зареєструйтесь, щоб почати керувати своїми завданнями</p>
+            <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Login">Увійти</a>
+            <a class="btn btn-secondary btn-lg" asp-area="Identity" asp-page="/Account/Register">Зареєструватись</a>
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(MojiSpravy.Models.TaskStatus status) => status switch
+    {
+        MojiSpravy.Models.TaskStatus.NotStarted => "bg-secondary",
+        MojiSpravy.Models.TaskStatus.InProgress => "bg-primary",
+        MojiSpravy.Models.TaskStatus.Completed => "bg-success",
+        MojiSpravy.Models.TaskStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}

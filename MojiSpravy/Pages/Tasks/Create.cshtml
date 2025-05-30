@@ -1,0 +1,63 @@
+@page
+@model MojiSpravy.Pages.Tasks.CreateModel
+@{
+    ViewData["Title"] = "Створити завдання";
+}
+
+<div class="container">
+    <h1>Створити нове завдання</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Task.Title" class="control-label">Назва</label>
+                    <input asp-for="Task.Title" class="form-control" />
+                    <span asp-validation-for="Task.Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Task.Description" class="control-label">Опис</label>
+                    <textarea asp-for="Task.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Task.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Task.DueDate" class="control-label">Термін виконання</label>
+                    <input asp-for="Task.DueDate" class="form-control" type="date" />
+                    <span asp-validation-for="Task.DueDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Task.Status" class="control-label">Статус</label>
+                    <select asp-for="Task.Status" class="form-select">
+                        <option value="NotStarted">Не розпочато</option>
+                        <option value="InProgress">В процесі</option>
+                        <option value="Completed">Виконано</option>
+                        <option value="Cancelled">Скасовано</option>
+                    </select>
+                    <span asp-validation-for="Task.Status" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Task.CategoryId" class="control-label">Категорія</label>
+                    <select asp-for="Task.CategoryId" asp-items="Model.Categories" class="form-select">
+                        <option value="">-- Виберіть категорію --</option>
+                    </select>
+                    <span asp-validation-for="Task.CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Створити" class="btn btn-primary" />
+                    <a asp-page="Index" class="btn btn-secondary">Назад до списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

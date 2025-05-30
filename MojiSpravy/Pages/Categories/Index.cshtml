@@ -1,0 +1,41 @@
+@page
+@model MojiSpravy.Pages.Categories.IndexModel
+@{
+    ViewData["Title"] = "Категорії";
+}
+
+<div class="container">
+    <h1>Категорії</h1>
+
+    <p>
+        <a asp-page="Create" class="btn btn-primary">Створити нову категорію</a>
+    </p>
+
+    <div class="row">
+        @foreach (var category in Model.Categories)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@category.Name</h5>
+                        @if (!string.IsNullOrEmpty(category.Description))
+                        {
+                            <p class="card-text">@category.Description</p>
+                        }
+                        <div class="btn-group">
+                            <a asp-page="./Edit" asp-route-id="@category.Id" class="btn btn-warning">Редагувати</a>
+                            <a asp-page="./Delete" asp-route-id="@category.Id" class="btn btn-danger">Видалити</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Categories.Any())
+    {
+        <div class="alert alert-info">
+            У вас ще немає категорій. Створіть першу категорію!
+        </div>
+    }
+</div> 

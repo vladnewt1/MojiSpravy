@@ -1,0 +1,38 @@
+@page
+@model MojiSpravy.Pages.Categories.CreateModel
+@{
+    ViewData["Title"] = "Створити категорію";
+}
+
+<div class="container">
+    <h1>Створити нову категорію</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="Category.Name" class="control-label">Назва</label>
+                    <input asp-for="Category.Name" class="form-control" />
+                    <span asp-validation-for="Category.Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Category.Description" class="control-label">Опис</label>
+                    <textarea asp-for="Category.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Category.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Створити" class="btn btn-primary" />
+                    <a asp-page="Index" class="btn btn-secondary">Назад до списку</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

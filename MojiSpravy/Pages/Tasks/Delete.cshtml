@@ -1,0 +1,59 @@
+@page "{id:int}"
+@model MojiSpravy.Pages.Tasks.DeleteModel
+@using MojiSpravy.Models
+@{
+    ViewData["Title"] = "Видалити завдання";
+}
+
+<div class="container">
+    <h1>Видалити завдання</h1>
+
+    <div class="alert alert-danger">
+        <h4>Ви впевнені, що хочете видалити це завдання?</h4>
+        <p>Ця дія є незворотною.</p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@Model.Task.Title</h5>
+            @if (!string.IsNullOrEmpty(Model.Task.Description))
+            {
+                <p class="card-text">@Model.Task.Description</p>
+            }
+
+            <div class="mb-2">
+                <small class="text-muted">
+                    <i class="bi bi-calendar"></i> Термін: @Model.Task.DueDate.ToString("d MMMM yyyy")
+                </small>
+            </div>
+
+            <div class="mb-2">
+                <span class="badge @GetStatusBadgeClass(Model.Task.Status)">@Model.Task.Status.ToUkrainian()</span>
+            </div>
+
+            @if (Model.Task.Category != null)
+            {
+                <div class="mb-2">
+                    <span class="badge bg-secondary">@Model.Task.Category.Name</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="Task.Id" />
+        <button type="submit" class="btn btn-danger">Видалити</button>
+        <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+    </form>
+</div>
+
+@functions {
+    private string GetStatusBadgeClass(MojiSpravy.Models.TaskStatus status) => status switch
+    {
+        MojiSpravy.Models.TaskStatus.NotStarted => "bg-secondary",
+        MojiSpravy.Models.TaskStatus.InProgress => "bg-primary",
+        MojiSpravy.Models.TaskStatus.Completed => "bg-success",
+        MojiSpravy.Models.TaskStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+} 
