@@ -7,8 +7,9 @@ on:
     branches: [ "main" ]
 
 env:
-  HEROKU_APP_NAME: mojispravy    # set this to your Heroku app name
-  DOTNET_VERSION: '9.0.x'
+  PROJECT_ID: mojispravy    # set this to your Google Cloud project ID
+  SERVICE_NAME: mojispravy  # set this to your Cloud Run service name
+  REGION: europe-west1      # set this to your preferred region
 
 jobs:
   build:
@@ -20,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+        dotnet-version: '9.0.x'
     
     - name: Restore dependencies
       run: dotnet restore MojiSpravy/MojiSpravy.csproj
@@ -34,14 +35,25 @@ jobs:
     - name: Publish
       run: dotnet publish MojiSpravy/MojiSpravy.csproj --configuration Release --output ${{ github.workspace }}/publish
     
-    - name: Create Procfile
-      run: echo "web: dotnet MojiSpravy.dll" > ${{ github.workspace }}/publish/Procfile
-    
-    - name: Deploy to Heroku
-      uses: akhileshns/heroku-deploy@v3.12.12
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
       with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: ${{ env.HEROKU_APP_NAME }}
-        heroku_email: ${{ secrets.HEROKU_EMAIL }}
-        appdir: ${{ github.workspace }}/publish
-        procfile: "web: dotnet MojiSpravy.dll" 
+        project_id: ${{ env.PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    
+    - name: Authorize Docker push
+      run: gcloud auth configure-docker
+    
+    - name: Build and Push Container
+      run: |
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+    
+    - name: Deploy to Cloud Run
+      uses: google-github-actions/deploy-cloudrun@v2
+      with:
+        service: ${{ env.SERVICE_NAME }}
+        region: ${{ env.REGION }}
+        image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        flags: '--platform managed --allow-unauthenticated' 
