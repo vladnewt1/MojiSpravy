@@ -7,9 +7,8 @@ on:
     branches: [ "main" ]
 
 env:
-  AZURE_WEBAPP_NAME: mojispravy    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: 'MojiSpravy'      # set this to the path to your web app project
-  DOTNET_VERSION: '9.0.x'           # set this to the .NET version to use
+  HEROKU_APP_NAME: mojispravy    # set this to your Heroku app name
+  DOTNET_VERSION: '9.0.x'
 
 jobs:
   build:
@@ -24,20 +23,25 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Restore dependencies
-      run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/MojiSpravy.csproj
+      run: dotnet restore MojiSpravy/MojiSpravy.csproj
     
     - name: Build
-      run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/MojiSpravy.csproj --configuration Release --no-restore
+      run: dotnet build MojiSpravy/MojiSpravy.csproj --configuration Release --no-restore
     
     - name: Test
-      run: dotnet test ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/MojiSpravy.csproj --no-build --verbosity normal
+      run: dotnet test MojiSpravy/MojiSpravy.csproj --no-build --verbosity normal
     
     - name: Publish
-      run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/MojiSpravy.csproj --configuration Release --output ${{ github.workspace }}/publish
+      run: dotnet publish MojiSpravy/MojiSpravy.csproj --configuration Release --output ${{ github.workspace }}/publish
     
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+    - name: Create Procfile
+      run: echo "web: dotnet MojiSpravy.dll" > ${{ github.workspace }}/publish/Procfile
+    
+    - name: Deploy to Heroku
+      uses: akhileshns/heroku-deploy@v3.12.12
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ github.workspace }}/publish 
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ env.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        appdir: ${{ github.workspace }}/publish
+        procfile: "web: dotnet MojiSpravy.dll" 
